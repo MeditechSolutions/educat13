@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="auth_signup_fields_extend" inherit_id="auth_signup.fields" name="Signup Fields Extend">
+            <xpath expr="//div[hasclass('field-confirm_password')]" position="after">
+                <div class="form-group form-field">
+                    <label class="col-form-label" for="acepta_tos">
+                        <font style="color: rgb(0, 0, 255);">
+                            <a href="http://www.estarbien.pe/terminos-y-condiciones-thani/" target="_blank">Acepta los términos y condiciones</a>
+                        </font>
+                    </label>
+                    <input type="checkbox" value="Yes" class="o_website_form_input" name="acepta_tos" required=""/>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>
