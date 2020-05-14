@@ -10,7 +10,7 @@
 Módulo de personalización de Estarbien Thani en Odoo
     """,
     'website': 'http://www.mstech.pe',
-    'depends' : ['payment_payulatam','auth_signup'],
+    'depends' : ['payment_payulatam','auth_signup','website_calendar'],
     'data': [
         'views/auth_signup_login_templates.xml',
         'views/website_calendar_templates.xml',
