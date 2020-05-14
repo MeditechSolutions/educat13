@@ -13,6 +13,7 @@ Módulo de personalización de Estarbien Thani en Odoo
     'depends' : ['payment_payulatam','auth_signup'],
     'data': [
         'views/auth_signup_login_templates.xml',
+        'views/website_calendar_templates.xml',
     ],
     'installable': True,
     'auto_install': False,
