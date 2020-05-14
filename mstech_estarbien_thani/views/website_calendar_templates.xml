@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="website_calendar_appointment_validated_extend" inherit_id="website_calendar.appointment_validated" name="Appointment Confirmed Extend">
+            <xpath expr="//div[hasclass('col-md-3')]//t[@t-if='event.appointment_type_id']" position="replace"/>
+        </template>
+    </data>
+</odoo>
