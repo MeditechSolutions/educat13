@@ -10,5 +10,6 @@ class PaymentAcquirerPayulatam(models.Model) :
         payulatam_values = super(PaymentAcquirerPayulatam, self).payulatam_form_generate_values(values)
         if self.payulatam_account_id == '512323' and self.state == 'test' :
             payulatam_values['currency'] = 'ARS'
+            payulatam_values['accountId'] = '512322'
             payulatam_values['signature'] = self._payulatam_generate_sign("in", payulatam_values)
         return payulatam_values
