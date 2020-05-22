@@ -2,6 +2,9 @@ from odoo import models, fields, api, _
 from datetime import datetime
 from random import choice
 from odoo.exceptions import UserError, ValidationError, Warning
+from pytz import timezone
+
+DEFAULT_TIMEZONE = 'America/Lima'
 
 def create_hash():
     size = 32
@@ -92,7 +95,9 @@ class JitsiMeetExternalParticipant(models.Model):
     
     def _format_date(self):
         for part in self:
-            part.date_formated = fields.Datetime.from_string(part.meeting_date).strftime('%m/%d/%Y, %H:%M:%S')
+            fecha_real = part.meeting_date
+            fecha_real = fecha_real.astimezone(timezone(self.env.user.tz or DEFAULT_TIMEZONE))
+            part.date_formated = fields.Datetime.from_string(fecha_real).strftime('%d/%m/%Y, %H:%M:%S')
     
     @api.model
     def create(self, vals):
