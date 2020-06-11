@@ -2,7 +2,7 @@
 
 {
     'name': 'Factura electrónica - Base',
-    'version': '1.0.0',
+    'version': '13.0.1.0.0',
     'author': 'Mouse Technologies',
     'category': 'Accounting & Finance',
     'summary': 'Tablas y requisitos para la factura electrónica.',
