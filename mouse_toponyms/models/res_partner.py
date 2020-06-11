@@ -6,9 +6,9 @@ from odoo.exceptions import UserError, ValidationError, Warning
 class Partner(models.Model):
     _inherit = "res.partner"
     
-    #Override the original onchange functions with super()
+    #Override the original onchange functions of base and l10n_latam_base with super()
     @api.onchange('country_id')
-    def _onchange_country_id(self) :
+    def _onchange_country(self) :
         super(models.Model, self)
         if self.state_id :
             self.state_id = False
