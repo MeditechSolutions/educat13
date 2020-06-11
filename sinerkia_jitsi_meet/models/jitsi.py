@@ -95,9 +95,7 @@ class JitsiMeetExternalParticipant(models.Model):
     
     def _format_date(self):
         for part in self:
-            fecha_real = part.meeting_date
-            fecha_real = fecha_real.astimezone(timezone(self.env.user.tz or DEFAULT_TIMEZONE))
-            part.date_formated = fields.Datetime.from_string(fecha_real).strftime('%d/%m/%Y, %H:%M:%S')
+            part.date_formated = part.meeting_date.astimezone(timezone(self.env.user.tz or DEFAULT_TIMEZONE)).strftime('%d/%m/%Y, %H:%M:%S')
     
     @api.model
     def create(self, vals):
