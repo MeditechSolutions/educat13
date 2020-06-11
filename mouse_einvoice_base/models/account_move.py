@@ -1411,7 +1411,7 @@ class AccountMove(models.Model) :
         xml_doc = xml_doc + '''</contentFile>
         </ser:sendBill>
     </soapenv:Body>
-    </soapenv:Envelope>'''
+</soapenv:Envelope>'''
         
         headers = {"Content-type": '''text/xml;charset="utf-8"''',
                     "Accept": "text/xml",
@@ -1457,6 +1457,24 @@ class AccountMove(models.Model) :
                           'signed_xml_binary_filename': invoice_company.partner_id.vat + '-' + record.journal_id.l10n_latam_document_type_id.code + '-' + record.name + (invoice_company.beta_service and ' - BETA' or '') + '.xml',
                           'signed_xml_digest_value': signed_invoice_dictionary['hash_cpe']})
     
+    def action_create_xml(self) :
+        for record in self :
+            invoice_company = record.company_id
+            unsigned_invoice_dictionary = {}
+            tipo_veri = record.journal_id.l10n_latam_document_type_id.code
+            if tipo_veri in ['01', '03'] :
+                unsigned_invoice_dictionary = record.crear_xml_factura()
+            elif tipo_veri == '07' :
+                unsigned_invoice_dictionary = record.crear_xml_nota_credito()
+            elif tipo_veri == '08' :
+                unsigned_invoice_dictionary = record.crear_xml_nota_debito()
+            
+            if unsigned_invoice_dictionary :
+                nombre = invoice_company.partner_id.vat + '-' + tipo_veri + '-' + record.name
+                record.write({'unsigned_xml': unsigned_invoice_dictionary['unsigned_xml'],
+                              'unsigned_xml_binary': base64.b64encode(unsigned_invoice_dictionary['unsigned_xml'].encode()),
+                              'unsigned_xml_binary_filename': nombre + '.xml'})
+    
     def action_post(self) :
         res = super(AccountMove, self).action_post()
         for record in self.filtered(lambda r: r.company_id.country_id == self.env.ref('base.pe', False)) :
@@ -1478,21 +1496,7 @@ class AccountMove(models.Model) :
                 if not record.partner_id.vat :
                     record.partner_id.vat = '11111111'
             
-            invoice_company = record.company_id
-            unsigned_invoice_dictionary = {}
-            tipo_veri = record.journal_id.l10n_latam_document_type_id.code
-            if tipo_veri in ['01', '03'] :
-                unsigned_invoice_dictionary = record.crear_xml_factura()
-            elif tipo_veri == '07' :
-                unsigned_invoice_dictionary = record.crear_xml_nota_credito()
-            elif tipo_veri == '08' :
-                unsigned_invoice_dictionary = record.crear_xml_nota_debito()
-            
-            if unsigned_invoice_dictionary :
-                nombre = invoice_company.partner_id.vat + '-' + tipo_veri + '-' + record.name
-                record.write({'unsigned_xml': unsigned_invoice_dictionary['unsigned_xml'],
-                              'unsigned_xml_binary': base64.b64encode(unsigned_invoice_dictionary['unsigned_xml'].encode()),
-                              'unsigned_xml_binary_filename': nombre + '.xml'})
+            record.action_create_xml()
         return res
     
     def action_send_sunat(self) :
@@ -1504,6 +1508,9 @@ class AccountMove(models.Model) :
         
         for record in self.filtered(lambda r: r.company_id.country_id == self.env.ref('base.pe', False)) :
             if not record.signed_xml :
+                if not record.unsigned_xml :
+                    record.action_create_xml()
+                    self.env.cr.commit()
                 record.action_sign_xml()
                 self.env.cr.commit()
             invoice_company = record.company_id
