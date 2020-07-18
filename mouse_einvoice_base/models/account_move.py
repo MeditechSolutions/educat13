@@ -395,7 +395,7 @@ class AccountMove(models.Model) :
                         listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
                     <cbc:CityName><![CDATA['''
         
-        default_district = self.env.ref('l10n_pe.district_pe_'+self._get_default_zipcode())
+        default_district = self.env.ref('l10n_pe.district_pe_150101')
         
         if company_partner.country_id.code != 'PE' :
             company_partner.country_id = self.env.ref('base.pe')
