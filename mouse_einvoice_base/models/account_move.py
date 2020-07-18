@@ -395,24 +395,23 @@ class AccountMove(models.Model) :
                         listName="Establecimientos anexos">0000</cbc:AddressTypeCode>
                     <cbc:CityName><![CDATA['''
         
-        if company_partner.l10n_pe_district :
-            if not company_partner.zip or company_partner.zip != company_partner.l10n_pe_district.code :
-                company_partner.zip = company_partner.l10n_pe_district.code
-        elif company_partner.city_id :
-            company_partner.l10n_pe_district = self.env['l10n_pe.res.city.district'].search([('city_id','in',company_partner.city_id.ids)],limit=1)
+        default_district = self.env.ref('l10n_pe.district_pe_'+self._get_default_zipcode())
+        
+        if company_partner.country_id.code != 'PE' :
+            company_partner.country_id = self.env.ref('base.pe')
+        if not company_partner.state_id and not company_partner.city_id and company_partner.l10n_pe_district :
+            company_partner.write({'state_id': default_district.city_id.state_id.id,
+                                   'city_id': default_district.city_id.id,
+                                   'l10n_pe_district': default_district.id,
+                                   'zip': default_district.code})
+        if not company_partner.state_id :
+            company_partner.state_id = default_district.city_id.state_id
+        if not company_partner.city_id :
+            company_partner.city_id = (company_partner.state_id == default_district.city_id.state_id and default_district.city_id or self.env['res.city'].search([('state_id','=',company_partner.state_id.id)], order='l10n_pe_code asc', limit=1))
+        if not company_partner.l10n_pe_district :
+            company_partner.l10n_pe_district = (company_partner.city_id == default_district.city_id and default_district or self.env['l10n_pe.res.city.district'].search([('city_id','=',company_partner.city_id.id)], order='code asc', limit=1))
+        if company_partner.zip != company_partner.l10n_pe_district.code :
             company_partner.zip = company_partner.l10n_pe_district.code
-        elif company_partner.state_id :
-            company_partner.city_id = self.env['res.city'].search([('state_id','in',company_partner.state_id.ids)],limit=1)
-            company_partner.l10n_pe_district = self.env['l10n_pe.res.city.district'].search([('city_id','in',company_partner.city_id.ids)],limit=1)
-            company_partner.zip = company_partner.l10n_pe_district.code
-        else :
-            distrito = self.env['l10n_pe.res.city.district'].search([('city_id','!=',False),('code','=',DEFAULT_ZIPCODE)],limit=1)
-            if not company_partner.country_id :
-                company_partner.country_id = distrito.city_id.country_id
-            company_partner.state_id = distrito.city_id.state_id
-            company_partner.province_id = distrito.city_id
-            company_partner.l10n_pe_district = distrito
-            company_partner.zip = distrito.code
         
         xml_doc = xml_doc + company_partner.state_id.name.upper()
         xml_doc = xml_doc + ''']]></cbc:CityName>
